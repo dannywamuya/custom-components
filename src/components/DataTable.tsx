@@ -47,18 +47,20 @@ function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
           Columns
         </MenuButton>
         <MenuList>
-          {table.getAllLeafColumns().map((column) => (
-            <MenuItem key={column.id}>
-              <Checkbox
-                size={"md"}
-                checked={column.getIsVisible()}
-                onChange={column.getToggleVisibilityHandler()}
-                defaultChecked
-              >
-                {column.id}
-              </Checkbox>
-            </MenuItem>
-          ))}
+          {table.getAllLeafColumns().map((column) =>
+            column.getCanHide() ? (
+              <MenuItem key={column.id}>
+                <Checkbox
+                  size={"md"}
+                  checked={column.getIsVisible()}
+                  onChange={column.getToggleVisibilityHandler()}
+                  defaultChecked
+                >
+                  {column.id}
+                </Checkbox>
+              </MenuItem>
+            ) : null
+          )}
         </MenuList>
       </Menu>
     </Flex>

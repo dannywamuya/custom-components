@@ -37,12 +37,14 @@ export const productColumns = [
     cell: (info) => info.getValue(),
     header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
     footer: (info) => convertToTitleCase(info.column.id),
+    enableHiding: false,
   }),
   columnHelper.accessor((row) => row.title, {
     id: "title",
     cell: (info) => info.getValue(),
     header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
     footer: (info) => convertToTitleCase(info.column.id),
+    enableHiding: false,
   }),
   columnHelper.accessor((row) => row.description, {
     id: "description",
