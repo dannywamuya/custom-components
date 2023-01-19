@@ -35,7 +35,6 @@ interface DataTableProps<T> {
   options?: {
     tableTitle?: string;
     canToggleColumns?: boolean;
-    sortableColumns?: Array<keyof T>;
   };
 }
 
@@ -73,7 +72,6 @@ function DataTable<T>({
   options = {
     tableTitle: "",
     canToggleColumns: false,
-    sortableColumns: [],
   },
 }: DataTableProps<T>) {
   const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
@@ -81,7 +79,7 @@ function DataTable<T>({
   });
 
   // Destructure the options passed to the table
-  const { canToggleColumns, tableTitle, sortableColumns } = options;
+  const { canToggleColumns, tableTitle } = options;
 
   // Sorting State
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -132,7 +130,7 @@ function DataTable<T>({
                     style: {
                       width: header.getSize(),
                     },
-                    onClick: sortableColumns?.includes(header.id as keyof T)
+                    onClick: header.column.getCanSort()
                       ? header.column.getToggleSortingHandler()
                       : () => null,
                   }}
@@ -141,11 +139,7 @@ function DataTable<T>({
                     align={"center"}
                     width={"full"}
                     justify={"space-between"}
-                    cursor={
-                      sortableColumns?.includes(header.id as keyof T)
-                        ? "pointer"
-                        : ""
-                    }
+                    cursor={header.column.getCanSort() ? "pointer" : ""}
                   >
                     {header.isPlaceholder
                       ? null
@@ -153,7 +147,7 @@ function DataTable<T>({
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                    {sortableColumns?.includes(header.id as keyof T)
+                    {header.column.getCanSort()
                       ? {
                           asc: <TriangleUpIcon />,
                           desc: <TriangleDownIcon />,

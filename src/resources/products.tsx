@@ -49,6 +49,7 @@ export const productColumns = [
     cell: (info) => info.getValue(),
     header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
     footer: (info) => convertToTitleCase(info.column.id),
+    enableSorting: false,
   }),
   columnHelper.accessor((row) => row.category, {
     id: "category",
