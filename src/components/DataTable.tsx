@@ -46,7 +46,7 @@ function DataTable<T>({
   return (
     <div style={{ width: "100%", padding: "1rem" }}>
       {/* Table Title and Description  */}
-      <Flex p={"4"} w="full" gap="2" align={"center"}>
+      <Flex my={"2"} w="full" gap="2" align={"center"}>
         <Text fontSize={"xl"} fontWeight="bold">
           {tableTitle ?? capitalizeFirstLetter(dataKey)}
         </Text>
@@ -57,7 +57,7 @@ function DataTable<T>({
       <Flex my={"4"} w="full" gap="2" align={"center"}>
         <Menu closeOnSelect={false}>
           <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Toggle Columns
+            Columns
           </MenuButton>
           <MenuList>
             {table.getAllLeafColumns().map((column) => (
