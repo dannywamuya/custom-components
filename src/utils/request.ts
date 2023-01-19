@@ -6,7 +6,7 @@ import axios, {
 } from "axios";
 
 // Set base URL for the API
-axios.defaults.baseURL = "http://localhost:3000/api";
+axios.defaults.baseURL = "https://fakestoreapi.com";
 
 axios.interceptors.response.use((response) => response, axiosErrorHandler);
 axios.interceptors.request.use((request) => request, axiosErrorHandler);
