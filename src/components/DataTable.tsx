@@ -23,18 +23,26 @@ interface DataTableProps<T> {
   dataKey: Array<string>;
   fetchFunction: () => Promise<T[]>;
   columns: any;
-  tableTitle?: string;
+  options?: {
+    tableTitle?: string;
+    canToggleColumns?: boolean;
+  };
 }
 
 function DataTable<T>({
   dataKey,
   columns,
   fetchFunction,
-  tableTitle,
+  options = {
+    canToggleColumns: false,
+  },
 }: DataTableProps<T>) {
   const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
     initialData: [],
   });
+
+  // Destructure the options passed to the table
+  const { canToggleColumns, tableTitle } = options;
 
   const table = useReactTable<T>({
     columns,
@@ -54,27 +62,31 @@ function DataTable<T>({
       </Flex>
 
       {/* Table Controls */}
-      <Flex my={"4"} w="full" gap="2" align={"center"}>
-        <Menu closeOnSelect={false}>
-          <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-            Columns
-          </MenuButton>
-          <MenuList>
-            {table.getAllLeafColumns().map((column) => (
-              <MenuItem key={column.id}>
-                <Checkbox
-                  size={"md"}
-                  checked={column.getIsVisible()}
-                  onChange={column.getToggleVisibilityHandler()}
-                  defaultChecked
-                >
-                  {column.id}
-                </Checkbox>
-              </MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      </Flex>
+
+      {/* Toggle Columns */}
+      {canToggleColumns ? (
+        <Flex my={"4"} w="full" gap="2" align={"center"}>
+          <Menu closeOnSelect={false}>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              Columns
+            </MenuButton>
+            <MenuList>
+              {table.getAllLeafColumns().map((column) => (
+                <MenuItem key={column.id}>
+                  <Checkbox
+                    size={"md"}
+                    checked={column.getIsVisible()}
+                    onChange={column.getToggleVisibilityHandler()}
+                    defaultChecked
+                  >
+                    {column.id}
+                  </Checkbox>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </Flex>
+      ) : null}
 
       {/* Actual Table */}
       <table

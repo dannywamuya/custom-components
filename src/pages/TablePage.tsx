@@ -14,6 +14,7 @@ const TablePage = () => {
         dataKey={["products"]}
         columns={productColumns}
         fetchFunction={getProducts}
+        options={{ canToggleColumns: true }}
       />
     </>
   );
