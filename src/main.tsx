@@ -5,6 +5,7 @@ import routes from "./utils/routes";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const locationClient = new ReactLocation();
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Router location={locationClient} routes={routes}>
           <Outlet />
         </Router>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ChakraProvider>
   </React.StrictMode>
