@@ -3,21 +3,10 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import {
-  Flex,
-  Text,
-  Spinner,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
-} from "@chakra-ui/react";
+import { Flex, Text, Spinner } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { capitalizeFirstLetter } from "../utils/textFormatter";
+import "../css/DataTable.css";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -40,62 +29,92 @@ function DataTable<T>({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
+    columnResizeMode: "onChange",
   });
 
   return (
-    <TableContainer>
+    <div style={{ width: "100%", padding: "1rem" }}>
       <Flex p={"4"} w="full" gap="2" align={"center"}>
         <Text fontSize={"xl"} fontWeight="bold">
           {tableTitle ?? capitalizeFirstLetter(dataKey)}
         </Text>
         {isFetching ? <Spinner size={"sm"} /> : null}
       </Flex>
-      <Table variant={"striped"}>
-        <Thead>
+      <table
+        {...{
+          style: {
+            width: "100%",
+          },
+        }}
+      >
+        <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <Tr key={headerGroup.id}>
+            <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Th key={header.id}>
+                <th
+                  {...{
+                    key: header.id,
+                    colSpan: header.colSpan,
+                    style: {
+                      width: header.getSize(),
+                    },
+                  }}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                </Th>
+                </th>
               ))}
-            </Tr>
+            </tr>
           ))}
-        </Thead>
-        <Tbody>
+        </thead>
+        <tbody>
           {table.getRowModel().rows.map((row) => (
-            <Tr key={row.id}>
+            <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <Td key={cell.id}>
+                <td
+                  {...{
+                    key: cell.id,
+                    style: {
+                      width: cell.column.getSize(),
+                    },
+                  }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </Td>
+                </td>
               ))}
-            </Tr>
+            </tr>
           ))}
-        </Tbody>
-        <Tfoot>
+        </tbody>
+        <tfoot>
           {table.getFooterGroups().map((footerGroup) => (
-            <Tr key={footerGroup.id}>
+            <tr key={footerGroup.id}>
               {footerGroup.headers.map((header) => (
-                <Th key={header.id}>
+                <th
+                  {...{
+                    key: header.id,
+                    colSpan: header.colSpan,
+                    style: {
+                      width: header.getSize(),
+                    },
+                  }}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
                         header.column.columnDef.footer,
                         header.getContext()
                       )}
-                </Th>
+                </th>
               ))}
-            </Tr>
+            </tr>
           ))}
-        </Tfoot>
-      </Table>
-    </TableContainer>
+        </tfoot>
+      </table>
+    </div>
   );
 }
 

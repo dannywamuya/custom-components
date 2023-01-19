@@ -32,33 +32,39 @@ const columnHelper = createColumnHelper<ProductItem>();
 
 export const productColumns = [
   columnHelper.accessor("id", {
+    id: "Product Id",
     cell: (info) => info.getValue(),
-    footer: "ID",
+    header: (info) => <Text>{info.column.id}</Text>,
+    footer: (info) => info.column.id,
   }),
   columnHelper.accessor((row) => row.title, {
-    id: "title",
+    id: "Title",
     cell: (info) => info.getValue(),
-    header: () => <Text>Title</Text>,
+    header: (info) => <Text>{info.column.id}</Text>,
     footer: (info) => info.column.id,
   }),
   columnHelper.accessor((row) => row.description, {
-    id: "desc",
+    id: "Description",
     cell: (info) => info.getValue(),
+    header: (info) => <Text>{info.column.id}</Text>,
     footer: (info) => info.column.id,
   }),
   columnHelper.accessor((row) => row.category, {
-    id: "category",
+    id: "Category",
     cell: (info) => info.getValue(),
+    header: (info) => <Text>{info.column.id}</Text>,
     footer: (info) => info.column.id,
   }),
   columnHelper.accessor((row) => row.rating.rate, {
-    id: "rating",
+    id: "Rating",
     cell: (info) => info.getValue(),
+    header: (info) => <Text>{info.column.id}</Text>,
     footer: (info) => info.column.id,
   }),
   columnHelper.accessor((row) => row.price, {
-    id: "price",
+    id: "Price",
     cell: (info) => info.getValue(),
+    header: (info) => <Text>{info.column.id}</Text>,
     footer: (info) => info.column.id,
   }),
 ];
