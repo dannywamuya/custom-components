@@ -2,6 +2,7 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
+  Table,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -27,6 +28,33 @@ interface DataTableProps<T> {
     tableTitle?: string;
     canToggleColumns?: boolean;
   };
+}
+
+// Menu that allows for toggling of table columns
+function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
+  return (
+    <Flex my={"4"} w="full" gap="2" align={"center"}>
+      <Menu closeOnSelect={false}>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+          Columns
+        </MenuButton>
+        <MenuList>
+          {table.getAllLeafColumns().map((column) => (
+            <MenuItem key={column.id}>
+              <Checkbox
+                size={"md"}
+                checked={column.getIsVisible()}
+                onChange={column.getToggleVisibilityHandler()}
+                defaultChecked
+              >
+                {column.id}
+              </Checkbox>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
+    </Flex>
+  );
 }
 
 function DataTable<T>({
@@ -64,29 +92,7 @@ function DataTable<T>({
       {/* Table Controls */}
 
       {/* Toggle Columns */}
-      {canToggleColumns ? (
-        <Flex my={"4"} w="full" gap="2" align={"center"}>
-          <Menu closeOnSelect={false}>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              Columns
-            </MenuButton>
-            <MenuList>
-              {table.getAllLeafColumns().map((column) => (
-                <MenuItem key={column.id}>
-                  <Checkbox
-                    size={"md"}
-                    checked={column.getIsVisible()}
-                    onChange={column.getToggleVisibilityHandler()}
-                    defaultChecked
-                  >
-                    {column.id}
-                  </Checkbox>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-        </Flex>
-      ) : null}
+      {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
 
       {/* Actual Table */}
       <table
