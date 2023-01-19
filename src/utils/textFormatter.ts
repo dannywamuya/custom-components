@@ -1,6 +1,9 @@
-export function capitalizeFirstLetter(str: string[]) {
-  const res = str
-    .map((s) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`)
-    .join(" ");
-  return res;
+export function convertToTitleCase(str: string | string[]): string {
+  if (Array.isArray(str)) {
+    return str
+      .join(" ")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
+  }
+  return str.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }

@@ -15,7 +15,7 @@ const Navbar = ({ page }: { page: string }) => {
       {!onHomePage ? (
         <Link to={"/"}>
           <Text fontSize={"xl"} color={"white"}>
-            Home
+            Go to Home
           </Text>
         </Link>
       ) : null}

@@ -1,6 +1,7 @@
 import { getRequest } from "../utils/request";
 import { Text } from "@chakra-ui/react";
 import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
+import { convertToTitleCase } from "../utils/textFormatter";
 
 // Product model
 export interface ProductItem {
@@ -32,40 +33,40 @@ const columnHelper = createColumnHelper<ProductItem>();
 
 export const productColumns = [
   columnHelper.accessor("id", {
-    id: "Product Id",
+    id: "id",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
   columnHelper.accessor((row) => row.title, {
-    id: "Title",
+    id: "title",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
   columnHelper.accessor((row) => row.description, {
-    id: "Description",
+    id: "description",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
   columnHelper.accessor((row) => row.category, {
-    id: "Category",
+    id: "category",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
   columnHelper.accessor((row) => row.rating.rate, {
-    id: "Rating",
+    id: "rating",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
   columnHelper.accessor((row) => row.price, {
-    id: "Price",
+    id: "price",
     cell: (info) => info.getValue(),
-    header: (info) => <Text>{info.column.id}</Text>,
-    footer: (info) => info.column.id,
+    header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
+    footer: (info) => convertToTitleCase(info.column.id),
   }),
 ];
 

@@ -3,6 +3,8 @@ import {
   getCoreRowModel,
   flexRender,
   Table,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -16,9 +18,15 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { capitalizeFirstLetter } from "../utils/textFormatter";
 import "../css/DataTable.css";
-import { ChevronDownIcon } from "@chakra-ui/icons";
+import {
+  ArrowUpDownIcon,
+  ChevronDownIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from "@chakra-ui/icons";
+import { useState } from "react";
+import { convertToTitleCase } from "../utils/textFormatter";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -27,6 +35,7 @@ interface DataTableProps<T> {
   options?: {
     tableTitle?: string;
     canToggleColumns?: boolean;
+    sortableColumns?: Array<keyof T>;
   };
 }
 
@@ -62,7 +71,9 @@ function DataTable<T>({
   columns,
   fetchFunction,
   options = {
+    tableTitle: "",
     canToggleColumns: false,
+    sortableColumns: [],
   },
 }: DataTableProps<T>) {
   const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
@@ -70,12 +81,20 @@ function DataTable<T>({
   });
 
   // Destructure the options passed to the table
-  const { canToggleColumns, tableTitle } = options;
+  const { canToggleColumns, tableTitle, sortableColumns } = options;
+
+  // Sorting State
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable<T>({
     columns,
     data,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     columnResizeMode: "onChange",
   });
 
@@ -84,7 +103,7 @@ function DataTable<T>({
       {/* Table Title and Description  */}
       <Flex my={"2"} w="full" gap="2" align={"center"}>
         <Text fontSize={"xl"} fontWeight="bold">
-          {tableTitle ?? capitalizeFirstLetter(dataKey)}
+          {tableTitle ? tableTitle : convertToTitleCase([...dataKey])}
         </Text>
         {isFetching ? <Spinner size={"sm"} /> : null}
       </Flex>
@@ -113,14 +132,36 @@ function DataTable<T>({
                     style: {
                       width: header.getSize(),
                     },
+                    onClick: sortableColumns?.includes(header.id as keyof T)
+                      ? header.column.getToggleSortingHandler()
+                      : () => null,
                   }}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  <Flex
+                    align={"center"}
+                    width={"full"}
+                    justify={"space-between"}
+                    cursor={
+                      sortableColumns?.includes(header.id as keyof T)
+                        ? "pointer"
+                        : ""
+                    }
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    {sortableColumns?.includes(header.id as keyof T)
+                      ? {
+                          asc: <TriangleUpIcon />,
+                          desc: <TriangleDownIcon />,
+                        }[header.column.getIsSorted() as string] ?? (
+                          <ArrowUpDownIcon />
+                        )
+                      : null}
+                  </Flex>
                 </th>
               ))}
             </tr>
@@ -157,12 +198,14 @@ function DataTable<T>({
                     },
                   }}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.footer,
-                        header.getContext()
-                      )}
+                  <Flex justify={"flex-start"}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.footer,
+                          header.getContext()
+                        )}
+                  </Flex>
                 </th>
               ))}
             </tr>
