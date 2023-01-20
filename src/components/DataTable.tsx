@@ -5,6 +5,9 @@ import {
   Table,
   SortingState,
   getSortedRowModel,
+  ColumnDef,
+  RowSelectionState,
+  Row,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -25,7 +28,7 @@ import {
   TriangleDownIcon,
   TriangleUpIcon,
 } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { convertToTitleCase } from "../utils/textFormatter";
 
 interface DataTableProps<T> {
@@ -35,6 +38,7 @@ interface DataTableProps<T> {
   options?: {
     tableTitle?: string;
     canToggleColumns?: boolean;
+    canSelectRows?: boolean;
   };
 }
 
@@ -74,6 +78,7 @@ function DataTable<T>({
   options = {
     tableTitle: "",
     canToggleColumns: false,
+    canSelectRows: false,
   },
 }: DataTableProps<T>) {
   const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
@@ -81,20 +86,57 @@ function DataTable<T>({
   });
 
   // Destructure the options passed to the table
-  const { canToggleColumns, tableTitle } = options;
+  const { canToggleColumns, tableTitle, canSelectRows } = options;
 
   // Sorting State
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // Row selection state
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  //   Column containing the select row checkboxes
+  const rowSelectionColumn = useMemo<ColumnDef<T>>(
+    () => ({
+      id: "select",
+      header: ({ table }) => (
+        <Flex w="full" align={"center"} justify={"center"}>
+          <Checkbox
+            {...{
+              isChecked: table.getIsAllRowsSelected(),
+              isIndeterminate: table.getIsSomeRowsSelected(),
+              onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+          />
+        </Flex>
+      ),
+      cell: ({ row }) => (
+        <Flex w="full" align={"center"} justify={"center"}>
+          <Checkbox
+            {...{
+              isChecked: row.getIsSelected(),
+              isIndeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler(),
+            }}
+          />
+        </Flex>
+      ),
+      enableHiding: false,
+      size: 20,
+    }),
+    [canSelectRows]
+  );
+
   const table = useReactTable<T>({
-    columns,
+    columns: canSelectRows ? [rowSelectionColumn, ...columns] : columns,
     data,
     state: {
       sorting,
+      rowSelection,
     },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onRowSelectionChange: setRowSelection,
     columnResizeMode: "onChange",
   });
 

@@ -1,5 +1,5 @@
 import { getRequest } from "../utils/request";
-import { Text } from "@chakra-ui/react";
+import { Flex, Text } from "@chakra-ui/react";
 import { createColumnHelper, ColumnDef } from "@tanstack/react-table";
 import { convertToTitleCase } from "../utils/textFormatter";
 
@@ -34,10 +34,15 @@ const columnHelper = createColumnHelper<ProductItem>();
 export const productColumns = [
   columnHelper.accessor("id", {
     id: "id",
-    cell: (info) => info.getValue(),
+    cell: (info) => (
+      <Flex w="full" justify="center">
+        {info.getValue()}
+      </Flex>
+    ),
     header: (info) => <Text>{convertToTitleCase(info.column.id)}</Text>,
     footer: (info) => convertToTitleCase(info.column.id),
     enableHiding: false,
+    size: 10,
   }),
   columnHelper.accessor((row) => row.title, {
     id: "title",

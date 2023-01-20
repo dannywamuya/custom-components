@@ -16,7 +16,7 @@ const TablePage = () => {
         fetchFunction={getProducts}
         options={{
           canToggleColumns: true,
-          sortableColumns: ["category", "id", "rating", "price", "title"],
+          canSelectRows: true,
         }}
       />
     </>
