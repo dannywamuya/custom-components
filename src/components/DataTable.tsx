@@ -19,7 +19,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import "../css/DataTable.css";
 import {
   ArrowUpDownIcon,
@@ -29,6 +29,7 @@ import {
 } from "@chakra-ui/icons";
 import { useEffect, useMemo, useState } from "react";
 import { convertToTitleCase } from "../utils/textFormatter";
+import useSelectedRows from "../hooks/useSelectedRows";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -41,7 +42,7 @@ interface DataTableProps<T> {
   };
 }
 
-type CustomSelectedRows<T> = { row: T; idx: number }[];
+export type CustomSelectedRows<T> = { row: T; idx: number }[];
 
 // Menu that allows for toggling of table columns
 function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
@@ -95,7 +96,7 @@ function DataTable<T>({
   // Row selection state
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  //   Column containing the select row checkboxes
+  // Column containing the select row checkboxes
   const rowSelectionColumn = useMemo<ColumnDef<T>>(
     () => ({
       id: "select",
@@ -141,36 +142,10 @@ function DataTable<T>({
     columnResizeMode: "onChange",
   });
 
-  // Logic to manage the state of row selection in react-query
-  const queryClient = useQueryClient();
-
-  const getSelectedRows = (): Promise<CustomSelectedRows<T>> => {
-    return new Promise((res) =>
-      res(
-        table
-          .getSelectedRowModel()
-          .flatRows.map((row) => ({ row: row.original, idx: row.index }))
-      )
-    );
-  };
-
-  const { mutate } = useMutation<CustomSelectedRows<T>>({
-    mutationFn: getSelectedRows,
-    onSuccess() {
-      queryClient.invalidateQueries(["selected", ...dataKey]);
-    },
-  });
-
-  useEffect(() => {
-    mutate();
-  }, [rowSelection]);
-
-  const { data: selectedRows } = useQuery<CustomSelectedRows<T>>(
+  const { selectedRows } = useSelectedRows(
     ["selected", ...dataKey],
-    getSelectedRows,
-    {
-      initialData: [],
-    }
+    table,
+    rowSelection
   );
 
   useEffect(() => {
