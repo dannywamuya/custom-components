@@ -119,6 +119,7 @@ function DataTable<T>({
               isIndeterminate: row.getIsSomeSelected(),
               onChange: row.getToggleSelectedHandler(),
             }}
+            borderColor="#c9d4cc"
           />
         </Flex>
       ),
