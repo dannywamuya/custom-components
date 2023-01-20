@@ -16,7 +16,14 @@ const TablePage = () => {
         fetchFunction={getProducts}
         options={{
           canToggleColumns: true,
-          canSelectRows: true,
+          selectActions: [
+            {
+              name: "log rows",
+              action(rows) {
+                console.log(rows);
+              },
+            },
+          ],
         }}
       />
       <div style={{ margin: "4rem 0" }} />

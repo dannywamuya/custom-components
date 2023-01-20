@@ -18,6 +18,7 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
+  Tooltip,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import "../css/DataTable.css";
@@ -38,7 +39,7 @@ interface DataTableProps<T> {
   options?: {
     tableTitle?: string;
     canToggleColumns?: boolean;
-    canSelectRows?: boolean;
+    selectActions?: Array<{ name: string; action: (rows: T[]) => any }>;
   };
 }
 
@@ -47,7 +48,7 @@ export type CustomSelectedRows<T> = { row: T; idx: number }[];
 // Menu that allows for toggling of table columns
 function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
   return (
-    <Flex my={"4"} w="full" gap="2" align={"center"}>
+    <Flex>
       <Menu closeOnSelect={false}>
         <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
           Columns
@@ -73,6 +74,49 @@ function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
   );
 }
 
+function SelectActionsMenu<T>({
+  selectedRows,
+  selectActions,
+}: {
+  selectedRows: CustomSelectedRows<T>;
+  selectActions: Array<{ name: string; action: (rows: T[]) => any }>;
+}) {
+  return (
+    <Flex>
+      <Menu closeOnSelect={false}>
+        <MenuButton
+          as={Button}
+          rightIcon={<ChevronDownIcon />}
+          disabled={selectedRows.length === 0}
+        >
+          Select Actions
+        </MenuButton>
+        <MenuList>
+          {selectActions.map(({ action, name }, idx) =>
+            selectedRows.length === 0 ? (
+              <MenuItem key={`${name}_${idx}`} isDisabled={true}>
+                <Tooltip label="Select at least 1 row">
+                  {convertToTitleCase(name)}
+                </Tooltip>
+              </MenuItem>
+            ) : (
+              <MenuItem
+                key={`${name}_${idx}`}
+                onClick={() => {
+                  action(selectedRows.map((r) => r.row));
+                }}
+                isDisabled={selectedRows.length === 0}
+              >
+                {convertToTitleCase(name)}
+              </MenuItem>
+            )
+          )}
+        </MenuList>
+      </Menu>
+    </Flex>
+  );
+}
+
 function DataTable<T>({
   dataKey,
   columns,
@@ -80,7 +124,7 @@ function DataTable<T>({
   options = {
     tableTitle: "",
     canToggleColumns: false,
-    canSelectRows: false,
+    selectActions: [],
   },
 }: DataTableProps<T>) {
   const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
@@ -88,7 +132,7 @@ function DataTable<T>({
   });
 
   // Destructure the options passed to the table
-  const { canToggleColumns, tableTitle, canSelectRows } = options;
+  const { canToggleColumns, tableTitle, selectActions } = options;
 
   // Sorting State
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -126,11 +170,11 @@ function DataTable<T>({
       enableHiding: false,
       size: 20,
     }),
-    [canSelectRows]
+    [selectActions]
   );
 
   const table = useReactTable<T>({
-    columns: canSelectRows ? [rowSelectionColumn, ...columns] : columns,
+    columns: selectActions ? [rowSelectionColumn, ...columns] : columns,
     data,
     state: {
       sorting,
@@ -177,8 +221,19 @@ function DataTable<T>({
 
       {/* Table Controls */}
 
-      {/* Toggle Columns */}
-      {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
+      <Flex gap={"2"} my={"4"} align="center">
+        {/* Select Actions */}
+        {selectActions ? (
+          <SelectActionsMenu
+            selectActions={selectActions}
+            selectedRows={selectedRows}
+          />
+        ) : null}
+
+        {/* Toggle Columns */}
+        {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
+      </Flex>
+
       <Flex
         overflow={"auto"}
         direction={"column"}
