@@ -7,7 +7,6 @@ import {
   getSortedRowModel,
   ColumnDef,
   RowSelectionState,
-  Row,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -20,7 +19,7 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import "../css/DataTable.css";
 import {
   ArrowUpDownIcon,
@@ -41,6 +40,8 @@ interface DataTableProps<T> {
     canSelectRows?: boolean;
   };
 }
+
+type CustomSelectedRows<T> = { row: T; idx: number }[];
 
 // Menu that allows for toggling of table columns
 function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
@@ -139,6 +140,54 @@ function DataTable<T>({
     onRowSelectionChange: setRowSelection,
     columnResizeMode: "onChange",
   });
+
+  // Logic to manage the state of row selection in react-query
+  const queryClient = useQueryClient();
+
+  const getSelectedRows = (): Promise<CustomSelectedRows<T>> => {
+    return new Promise((res) =>
+      res(
+        table
+          .getSelectedRowModel()
+          .flatRows.map((row) => ({ row: row.original, idx: row.index }))
+      )
+    );
+  };
+
+  const { mutate } = useMutation<CustomSelectedRows<T>>({
+    mutationFn: getSelectedRows,
+    onSuccess() {
+      queryClient.invalidateQueries(["selected", ...dataKey]);
+    },
+  });
+
+  useEffect(() => {
+    mutate();
+  }, [rowSelection]);
+
+  const { data: selectedRows } = useQuery<CustomSelectedRows<T>>(
+    ["selected", ...dataKey],
+    getSelectedRows,
+    {
+      initialData: [],
+    }
+  );
+
+  useEffect(() => {
+    setRowSelection(() => {
+      /**
+       * Chat GPT did this LMFAO!
+       *
+       * Basically takes the state of the selected rows from react-query
+       * which is an array with the selected rows and returns the an object with key value pairs
+       * of the selected row index and true because the row is selected
+       */
+      return selectedRows.reduce((prev, { idx }) => {
+        prev[idx] = true;
+        return prev;
+      }, {} as { [x: string]: boolean });
+    });
+  }, [selectedRows]);
 
   return (
     <div style={{ width: "100%", padding: "1rem" }}>
