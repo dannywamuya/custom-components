@@ -19,6 +19,7 @@ const TablePage = () => {
           canSelectRows: true,
         }}
       />
+      <div style={{ margin: "4rem 0" }} />
     </>
   );
 };

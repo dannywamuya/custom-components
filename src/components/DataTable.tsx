@@ -101,7 +101,7 @@ function DataTable<T>({
     () => ({
       id: "select",
       header: ({ table }) => (
-        <Flex w="full" align={"center"} justify={"center"}>
+        <Flex w="full" justify={"center"}>
           <Checkbox
             {...{
               isChecked: table.getIsAllRowsSelected(),
@@ -112,7 +112,7 @@ function DataTable<T>({
         </Flex>
       ),
       cell: ({ row }) => (
-        <Flex w="full" align={"center"} justify={"center"}>
+        <Flex w="full" justify={"center"} marginLeft={"4px"}>
           <Checkbox
             {...{
               isChecked: row.getIsSelected(),
@@ -165,9 +165,9 @@ function DataTable<T>({
   }, [selectedRows]);
 
   return (
-    <div style={{ width: "100%", padding: "1rem" }}>
+    <Flex p={"8"} direction={"column"} maxW="full">
       {/* Table Title and Description  */}
-      <Flex my={"2"} w="full" gap="2" align={"center"}>
+      <Flex w="full" gap="2" align={"center"}>
         <Text fontSize={"xl"} fontWeight="bold">
           {tableTitle ? tableTitle : convertToTitleCase([...dataKey])}
         </Text>
@@ -178,103 +178,114 @@ function DataTable<T>({
 
       {/* Toggle Columns */}
       {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
-
-      {/* Actual Table */}
-      <table
-        {...{
-          style: {
-            width: "100%",
-          },
-        }}
+      <Flex
+        overflow={"auto"}
+        direction={"column"}
+        boxShadow="0 0 25px rgba(0, 0, 0, 0.274)"
+        borderRadius={"5px"}
       >
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  {...{
-                    key: header.id,
-                    colSpan: header.colSpan,
-                    style: {
-                      width: header.getSize(),
-                    },
-                    onClick: header.column.getCanSort()
-                      ? header.column.getToggleSortingHandler()
-                      : () => null,
-                  }}
-                >
-                  <Flex
-                    align={"center"}
-                    width={"full"}
-                    justify={"space-between"}
-                    cursor={header.column.getCanSort() ? "pointer" : ""}
+        {/* Actual Table */}
+        <table
+          {...{
+            style: {
+              width: "100%",
+            },
+          }}
+        >
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    {...{
+                      key: header.id,
+                      colSpan: header.colSpan,
+                      style: {
+                        width: header.getSize(),
+                      },
+                      onClick: header.column.getCanSort()
+                        ? header.column.getToggleSortingHandler()
+                        : () => null,
+                    }}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    {header.column.getCanSort()
-                      ? {
-                          asc: <TriangleUpIcon />,
-                          desc: <TriangleDownIcon />,
-                        }[header.column.getIsSorted() as string] ?? (
-                          <ArrowUpDownIcon />
-                        )
-                      : null}
-                  </Flex>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  {...{
-                    key: cell.id,
-                    style: {
-                      width: cell.column.getSize(),
-                    },
-                  }}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          {table.getFooterGroups().map((footerGroup) => (
-            <tr key={footerGroup.id}>
-              {footerGroup.headers.map((header) => (
-                <th
-                  {...{
-                    key: header.id,
-                    colSpan: header.colSpan,
-                    style: {
-                      width: header.getSize(),
-                    },
-                  }}
-                >
-                  <Flex justify={"flex-start"}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.footer,
-                          header.getContext()
-                        )}
-                  </Flex>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      </table>
-    </div>
+                    <Flex
+                      align={"center"}
+                      width={"full"}
+                      gap={"2"}
+                      cursor={header.column.getCanSort() ? "pointer" : ""}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {header.column.getCanSort()
+                        ? {
+                            asc: <TriangleUpIcon />,
+                            desc: <TriangleDownIcon />,
+                          }[header.column.getIsSorted() as string] ?? (
+                            <ArrowUpDownIcon />
+                          )
+                        : null}
+                    </Flex>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    {...{
+                      key: cell.id,
+                      style: {
+                        width: cell.column.getSize(),
+                      },
+                    }}
+                  >
+                    <div className={"row-cell"}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            {table.getFooterGroups().map((footerGroup) => (
+              <tr key={footerGroup.id}>
+                {footerGroup.headers.map((header) => (
+                  <th
+                    {...{
+                      key: header.id,
+                      colSpan: header.colSpan,
+                      style: {
+                        width: header.getSize(),
+                      },
+                    }}
+                  >
+                    <Flex justify={"flex-start"}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.footer,
+                            header.getContext()
+                          )}
+                    </Flex>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </tfoot>
+        </table>
+      </Flex>
+    </Flex>
   );
 }
 
