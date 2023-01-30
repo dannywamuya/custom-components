@@ -2,7 +2,7 @@ import {
   useReactTable,
   getCoreRowModel,
   flexRender,
-  Table,
+  Table as ITable,
   SortingState,
   getSortedRowModel,
   ColumnDef,
@@ -39,14 +39,17 @@ interface DataTableProps<T> {
   options?: {
     tableTitle?: string;
     canToggleColumns?: boolean;
-    selectActions?: Array<{ name: string; action: (rows: T[]) => any }>;
+    selectActions?: Array<{
+      name: string;
+      action: (rows: T[], updateLoading: () => void) => void;
+    }>;
   };
 }
 
 export type CustomSelectedRows<T> = { row: T; idx: number }[];
 
 // Menu that allows for toggling of table columns
-function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
+function ColumnToggleMenu<T>({ table }: { table: ITable<T> }) {
   return (
     <Flex>
       <Menu closeOnSelect={false}>
@@ -80,8 +83,19 @@ function SelectActionsMenu<T>({
   selectActions,
 }: {
   selectedRows: CustomSelectedRows<T>;
-  selectActions: Array<{ name: string; action: (rows: T[]) => any }>;
+  selectActions: Array<{
+    name: string;
+    action: (rows: T[], updateLoading: () => void) => void;
+  }>;
 }) {
+  const [loading, setLoading] = useState<Array<string>>([]);
+
+  const updateLoading = (actionName: string) => {
+    setLoading((prev) => {
+      return prev.filter((item) => item !== actionName);
+    });
+  };
+
   return (
     <Flex>
       <Menu closeOnSelect={false}>
@@ -104,11 +118,22 @@ function SelectActionsMenu<T>({
               <MenuItem
                 key={`${name}_${idx}`}
                 onClick={() => {
-                  action(selectedRows.map((r) => r.row));
+                  action(
+                    selectedRows.map((r) => r.row),
+                    () => updateLoading(name)
+                  );
+                  setLoading([...loading, name]);
                 }}
-                isDisabled={selectedRows.length === 0}
+                isDisabled={
+                  selectedRows.length === 0 ||
+                  (loading && loading.includes(name))
+                }
+                justifyContent={"space-between"}
               >
                 {convertToTitleCase(name)}
+                {loading && loading.includes(name) ? (
+                  <Spinner ml={"2"} size={"sm"} />
+                ) : null}
               </MenuItem>
             )
           )}
@@ -119,7 +144,7 @@ function SelectActionsMenu<T>({
 }
 
 // Table
-function Table<T>({ table }: { table: Table<T> }) {
+function Table<T>({ table }: { table: ITable<T> }) {
   return (
     <Flex
       overflow={"auto"}
