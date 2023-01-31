@@ -7,6 +7,8 @@ import {
   getSortedRowModel,
   ColumnDef,
   RowSelectionState,
+  FilterFn,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -19,18 +21,28 @@ import {
   MenuItem,
   MenuList,
   Tooltip,
+  Input,
+  InputGroup,
+  InputRightElement,
+  InputProps,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import "../css/DataTable.css";
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
+  SearchIcon,
   TriangleDownIcon,
   TriangleUpIcon,
 } from "@chakra-ui/icons";
 import { useEffect, useMemo, useState } from "react";
 import { convertToTitleCase } from "../utils/textFormatter";
 import useSelectedRows from "../hooks/useSelectedRows";
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from "@tanstack/match-sorter-utils";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -253,6 +265,56 @@ function Table<T>({ table }: { table: ITable<T> }) {
   );
 }
 
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value);
+
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  });
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed;
+};
+
+// A debounced input react component
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  debounce?: number;
+} & Omit<InputProps, "onChange">) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  return (
+    <InputGroup>
+      <Input
+        {...props}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <InputRightElement children={<SearchIcon />} />
+    </InputGroup>
+  );
+}
+
 function DataTable<T>({
   dataKey,
   columns,
@@ -275,6 +337,8 @@ function DataTable<T>({
 
   // Row selection state
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const [globalFilter, setGlobalFilter] = useState("");
 
   // Column containing the select row checkboxes
   const rowSelectionColumn = useMemo<ColumnDef<T>>(
@@ -312,10 +376,17 @@ function DataTable<T>({
   const table = useReactTable<T>({
     columns: selectActions ? [rowSelectionColumn, ...columns] : columns,
     data,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
     state: {
       sorting,
       rowSelection,
+      globalFilter,
     },
+    onGlobalFilterChange: setGlobalFilter,
+    getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: fuzzyFilter,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -368,6 +439,12 @@ function DataTable<T>({
 
         {/* Toggle Columns */}
         {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
+
+        <DebouncedInput
+          value={globalFilter ?? ""}
+          onChange={(value) => setGlobalFilter(String(value))}
+          placeholder="Search all columns..."
+        />
       </Flex>
 
       {/* Table */}
