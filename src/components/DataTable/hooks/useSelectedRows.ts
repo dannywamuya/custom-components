@@ -1,7 +1,7 @@
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { RowSelectionState, Table } from "@tanstack/react-table";
 import { useEffect } from "react";
-import { CustomSelectedRows } from "../components/DataTable";
+import { CustomSelectedRows } from "../types/types";
 
 /**
  * Logic to get the selected rows in the dataTable
