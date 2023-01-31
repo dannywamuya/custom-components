@@ -52,6 +52,9 @@ import {
   rankItem,
   compareItems,
 } from "@tanstack/match-sorter-utils";
+import { BiHide } from "react-icons/bi";
+import { MdFilterList } from "react-icons/md";
+import { GiArrowCursor } from "react-icons/gi";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -74,7 +77,7 @@ function ColumnToggleMenu<T>({ table }: { table: ITable<T> }) {
   return (
     <Flex>
       <Menu closeOnSelect={false}>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+        <MenuButton as={Button} rightIcon={<BiHide />}>
           Columns
         </MenuButton>
         <MenuList>
@@ -122,7 +125,7 @@ function SelectActionsMenu<T>({
       <Menu closeOnSelect={false}>
         <MenuButton
           as={Button}
-          rightIcon={<ChevronDownIcon />}
+          rightIcon={<GiArrowCursor />}
           disabled={selectedRows.length === 0}
         >
           Select Actions {`(${selectedRows.length})`}
@@ -407,22 +410,23 @@ function Filter({
           searchIcon={searchIcon}
           fontSize={"sm"}
         />
-        <IconButton
-          size={"xxs"}
-          borderRadius={"full"}
-          p={"1"}
-          color={"white"}
-          bg={"red.500"}
-          aria-label="Clear Filter"
-          variant={"ghost"}
-          isDisabled={!column.getFilterValue()}
-          _hover={{}}
-          onClick={(e) => {
-            e.stopPropagation();
-            column.setFilterValue(null);
-          }}
-          as={CloseIcon}
-        />
+        {column.getFilterValue() ? (
+          <IconButton
+            size={"xxs"}
+            borderRadius={"full"}
+            p={"1"}
+            color={"white"}
+            bg={"red.500"}
+            aria-label="Clear Filter"
+            variant={"ghost"}
+            _hover={{}}
+            onClick={(e) => {
+              e.stopPropagation();
+              column.setFilterValue(null);
+            }}
+            as={CloseIcon}
+          />
+        ) : null}
       </Flex>
     </Flex>
   ) : (
@@ -446,22 +450,23 @@ function Filter({
           onClick={(e) => e.stopPropagation()}
           fontSize={"sm"}
         />
-        <IconButton
-          size={"xxs"}
-          borderRadius={"full"}
-          p={"1"}
-          color={"white"}
-          bg={"red.500"}
-          isDisabled={!column.getFilterValue()}
-          aria-label="Clear Filter"
-          variant={"ghost"}
-          _hover={{}}
-          onClick={(e) => {
-            e.stopPropagation();
-            column.setFilterValue(null);
-          }}
-          as={CloseIcon}
-        />
+        {column.getFilterValue() ? (
+          <IconButton
+            size={"xxs"}
+            borderRadius={"full"}
+            p={"1"}
+            color={"white"}
+            bg={"red.500"}
+            aria-label="Clear Filter"
+            variant={"ghost"}
+            _hover={{}}
+            onClick={(e) => {
+              e.stopPropagation();
+              column.setFilterValue(null);
+            }}
+            as={CloseIcon}
+          />
+        ) : null}
       </Flex>
     </>
   );
@@ -479,7 +484,7 @@ function ColumnFilterMenu<T>({
   return (
     <Flex gap={"2"} fontSize={"sm"} align={"center"} w="full">
       <Menu closeOnSelect={false}>
-        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+        <MenuButton as={Button} rightIcon={<MdFilterList />}>
           Filter Columns {`(${filteredColumns.length})`}
         </MenuButton>
         <MenuList>

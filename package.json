@@ -20,7 +20,8 @@
     "axios": "^1.2.3",
     "framer-motion": "^8.5.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.7.1"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
