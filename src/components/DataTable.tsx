@@ -30,15 +30,12 @@ import {
   InputGroup,
   InputRightElement,
   InputProps,
-  Box,
   IconButton,
-  CloseButton,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import "../css/DataTable.css";
 import {
   ArrowUpDownIcon,
-  ChevronDownIcon,
   CloseIcon,
   SearchIcon,
   TriangleDownIcon,
@@ -47,14 +44,10 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { convertToTitleCase } from "../utils/textFormatter";
 import useSelectedRows from "../hooks/useSelectedRows";
-import {
-  RankingInfo,
-  rankItem,
-  compareItems,
-} from "@tanstack/match-sorter-utils";
+import { rankItem } from "@tanstack/match-sorter-utils";
 import { BiHide } from "react-icons/bi";
 import { MdFilterList } from "react-icons/md";
-import { GiArrowCursor } from "react-icons/gi";
+import { RxCursorArrow } from "react-icons/rx";
 
 interface DataTableProps<T> {
   dataKey: Array<string>;
@@ -125,7 +118,7 @@ function SelectActionsMenu<T>({
       <Menu closeOnSelect={false}>
         <MenuButton
           as={Button}
-          rightIcon={<GiArrowCursor />}
+          rightIcon={<RxCursorArrow />}
           disabled={selectedRows.length === 0}
         >
           Select Actions {`(${selectedRows.length})`}
