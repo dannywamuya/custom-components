@@ -9,6 +9,11 @@ import {
   RowSelectionState,
   FilterFn,
   getFilteredRowModel,
+  ColumnFiltersState,
+  Column,
+  getFacetedMinMaxValues,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
 } from "@tanstack/react-table";
 import {
   Flex,
@@ -25,12 +30,16 @@ import {
   InputGroup,
   InputRightElement,
   InputProps,
+  Box,
+  IconButton,
+  CloseButton,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import "../css/DataTable.css";
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
+  CloseIcon,
   SearchIcon,
   TriangleDownIcon,
   TriangleUpIcon,
@@ -116,7 +125,7 @@ function SelectActionsMenu<T>({
           rightIcon={<ChevronDownIcon />}
           disabled={selectedRows.length === 0}
         >
-          Select Actions
+          Select Actions {`(${selectedRows.length})`}
         </MenuButton>
         <MenuList>
           {selectActions.map(({ action, name }, idx) =>
@@ -223,6 +232,7 @@ function Table<T>({ table }: { table: ITable<T> }) {
                     key: cell.id,
                     style: {
                       width: cell.column.getSize(),
+                      justifyContent: "flex-end",
                     },
                   }}
                 >
@@ -283,11 +293,13 @@ function DebouncedInput({
   value: initialValue,
   onChange,
   debounce = 500,
+  searchIcon = false,
   ...props
 }: {
   value: string | number;
   onChange: (value: string | number) => void;
   debounce?: number;
+  searchIcon?: boolean;
 } & Omit<InputProps, "onChange">) {
   const [value, setValue] = useState(initialValue);
 
@@ -310,8 +322,199 @@ function DebouncedInput({
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <InputRightElement children={<SearchIcon />} />
+      {searchIcon ? <InputRightElement children={<SearchIcon />} /> : null}
     </InputGroup>
+  );
+}
+
+function Filter({
+  column,
+  table,
+  searchIcon = false,
+  setFilteredColumns,
+}: {
+  column: Column<any, unknown>;
+  table: ITable<any>;
+  setFilteredColumns: any;
+  searchIcon?: boolean;
+}) {
+  const firstValue = table
+    .getPreFilteredRowModel()
+    .flatRows[0]?.getValue(column.id);
+
+  const columnFilterValue = column.getFilterValue();
+
+  const sortedUniqueValues = useMemo(
+    () =>
+      typeof firstValue === "number"
+        ? []
+        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
+    [column.getFacetedUniqueValues()]
+  );
+
+  const handleSetFilteredColumns = (value: any) => {
+    if (value) {
+      setFilteredColumns((prev: string[]) => {
+        const set = new Set([...prev]);
+        set.add(column.id);
+        return [...set];
+      });
+    } else {
+      setFilteredColumns((prev: string[]) => {
+        const set = new Set([...prev]);
+        set.delete(column.id);
+        return [...set];
+      });
+    }
+  };
+
+  return typeof firstValue === "number" ? (
+    <Flex w="full">
+      <Flex gap={"2"} align={"center"} w={"full"}>
+        <DebouncedInput
+          type="number"
+          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
+          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
+          value={(columnFilterValue as [number, number])?.[0] ?? ""}
+          onChange={(value) => {
+            column.setFilterValue((old: [number, number]) => [value, old?.[1]]);
+            handleSetFilteredColumns(value);
+          }}
+          placeholder={`Min ${
+            column.getFacetedMinMaxValues()?.[0]
+              ? `(${column.getFacetedMinMaxValues()?.[0]})`
+              : ""
+          }`}
+          searchIcon={searchIcon}
+          onClick={(e) => e.stopPropagation()}
+          fontSize={"sm"}
+        />
+        <DebouncedInput
+          type="number"
+          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
+          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
+          value={(columnFilterValue as [number, number])?.[1] ?? ""}
+          onChange={(value) => {
+            column.setFilterValue((old: [number, number]) => [old?.[0], value]);
+            handleSetFilteredColumns(value);
+          }}
+          placeholder={`Max ${
+            column.getFacetedMinMaxValues()?.[1]
+              ? `(${column.getFacetedMinMaxValues()?.[1]})`
+              : ""
+          }`}
+          onClick={(e) => e.stopPropagation()}
+          searchIcon={searchIcon}
+          fontSize={"sm"}
+        />
+        <IconButton
+          size={"xxs"}
+          borderRadius={"full"}
+          p={"1"}
+          color={"white"}
+          bg={"red.500"}
+          aria-label="Clear Filter"
+          variant={"ghost"}
+          isDisabled={!column.getFilterValue()}
+          _hover={{}}
+          onClick={(e) => {
+            e.stopPropagation();
+            column.setFilterValue(null);
+          }}
+          as={CloseIcon}
+        />
+      </Flex>
+    </Flex>
+  ) : (
+    <>
+      <Flex w="full" align={"center"} gap={2}>
+        <datalist id={column.id + "list"}>
+          {sortedUniqueValues.slice(0, 5000).map((value: any) => (
+            <option value={value} key={value} />
+          ))}
+        </datalist>
+        <DebouncedInput
+          type="text"
+          value={(columnFilterValue ?? "") as string}
+          onChange={(value) => {
+            column.setFilterValue(value);
+            handleSetFilteredColumns(value);
+          }}
+          placeholder={`Search (${column.getFacetedUniqueValues().size})`}
+          list={column.id + "list"}
+          searchIcon={searchIcon}
+          onClick={(e) => e.stopPropagation()}
+          fontSize={"sm"}
+        />
+        <IconButton
+          size={"xxs"}
+          borderRadius={"full"}
+          p={"1"}
+          color={"white"}
+          bg={"red.500"}
+          isDisabled={!column.getFilterValue()}
+          aria-label="Clear Filter"
+          variant={"ghost"}
+          _hover={{}}
+          onClick={(e) => {
+            e.stopPropagation();
+            column.setFilterValue(null);
+          }}
+          as={CloseIcon}
+        />
+      </Flex>
+    </>
+  );
+}
+
+function ColumnFilterMenu<T>({
+  canFilterColumns,
+  table,
+}: {
+  canFilterColumns: Column<T>[];
+  table: ITable<T>;
+}) {
+  const [filteredColumns, setFilteredColumns] = useState<string[]>([]);
+
+  return (
+    <Flex gap={"2"} fontSize={"sm"} align={"center"} w="full">
+      <Menu closeOnSelect={false}>
+        <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+          Filter Columns {`(${filteredColumns.length})`}
+        </MenuButton>
+        <MenuList>
+          {canFilterColumns.map((column, idx) => (
+            <MenuItem key={`${column.id}_${idx}`} gap={"2"}>
+              <Flex align={"center"} fontWeight={"semibold"} gap={"2"}>
+                {convertToTitleCase(column.id)}
+              </Flex>
+              <Filter
+                column={column}
+                table={table}
+                searchIcon={false}
+                setFilteredColumns={setFilteredColumns}
+              />
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
+      {filteredColumns.length > 0 ? (
+        <IconButton
+          size={"xs"}
+          borderRadius={"full"}
+          p={"1"}
+          cursor={"pointer"}
+          color={"white"}
+          bg={"red.500"}
+          aria-label="Clear Filters"
+          _hover={{}}
+          onClick={(e) => {
+            table.resetColumnFilters();
+          }}
+          as={CloseIcon}
+        />
+      ) : null}
+    </Flex>
   );
 }
 
@@ -338,7 +541,11 @@ function DataTable<T>({
   // Row selection state
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
+  // Global Filter state
   const [globalFilter, setGlobalFilter] = useState("");
+
+  // Column Filter State
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   // Column containing the select row checkboxes
   const rowSelectionColumn = useMemo<ColumnDef<T>>(
@@ -383,16 +590,26 @@ function DataTable<T>({
       sorting,
       rowSelection,
       globalFilter,
+      columnFilters,
     },
+    onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
     globalFilterFn: fuzzyFilter,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
     onRowSelectionChange: setRowSelection,
     columnResizeMode: "onChange",
   });
+
+  const canFilterColumns = useMemo<Column<T>[]>(
+    () => table.getAllColumns().filter((column) => column.getCanFilter()),
+    [table]
+  );
 
   const { selectedRows } = useSelectedRows(
     ["selected", ...dataKey],
@@ -440,10 +657,17 @@ function DataTable<T>({
         {/* Toggle Columns */}
         {canToggleColumns ? <ColumnToggleMenu table={table} /> : null}
 
+        {/* Column Filters */}
+        {canFilterColumns.length > 0 ? (
+          <ColumnFilterMenu canFilterColumns={canFilterColumns} table={table} />
+        ) : null}
+
+        {/* Global Filter */}
         <DebouncedInput
           value={globalFilter ?? ""}
           onChange={(value) => setGlobalFilter(String(value))}
           placeholder="Search all columns..."
+          searchIcon
         />
       </Flex>
 
