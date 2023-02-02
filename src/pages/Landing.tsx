@@ -16,6 +16,11 @@ const LandingPage = () => {
               <Text _hover={{ color: "blue" }}>Table Component</Text>
             </Link>
           </ListItem>
+          <ListItem>
+            <Link to={"/form"}>
+              <Text _hover={{ color: "blue" }}>Form Component</Text>
+            </Link>
+          </ListItem>
         </OrderedList>
       </Flex>
     </>
