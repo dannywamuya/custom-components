@@ -7,7 +7,7 @@ function TextField(props: TextFieldProps & { name: string }) {
   const { label, name, htmlType = "text", placeholder } = props;
 
   return (
-    <FormControl>
+    <>
       <FormLabel htmlFor={name}>{label}</FormLabel>
       <Input
         id={name}
@@ -15,7 +15,7 @@ function TextField(props: TextFieldProps & { name: string }) {
         placeholder={placeholder}
         {...register(name)}
       />
-    </FormControl>
+    </>
   );
 }
 

@@ -4,9 +4,13 @@ import {
   Button,
   Flex,
   FormLabel,
+  Grid,
+  GridItem,
   Heading,
   IconButton,
+  Text,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import {
   FormProvider,
   useFieldArray,
@@ -23,20 +27,25 @@ import {
 } from "./types/types";
 
 function ObjectField(props: ObjectFieldProps & { name: string }) {
-  const { label, name, properties } = props;
+  const { label, name, properties, styling = {} } = props;
+  const { fieldsPerColumn } = styling;
 
   return (
     <Flex direction={"column"}>
       <FormLabel>{label}</FormLabel>
-      <Flex gap={"2"} w={"full"}>
+      <Grid
+        gap={"2"}
+        w={"full"}
+        templateColumns={`repeat(${fieldsPerColumn ?? 2}, 1fr)`}
+      >
         {Object.entries(properties).map(([fieldName, objectField], idx) => {
           return (
-            <div key={`${name}.${fieldName}_${idx}`}>
+            <GridItem key={`${name}.${fieldName}_${idx}`}>
               {renderFields([`${name}.${fieldName}`, objectField])}
-            </div>
+            </GridItem>
           );
         })}
-      </Flex>
+      </Grid>
     </Flex>
   );
 }
@@ -53,28 +62,31 @@ function ArrayField(props: ArrayFieldProps & { name: string }) {
 
   const { control } = useFormContext();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, prepend } = useFieldArray({
     control,
     name,
+    rules: { minLength: 4 },
   });
 
   function add() {
-    append(appendDefaults[itemField.type]);
+    prepend(appendDefaults[itemField.type]);
   }
 
   return (
-    <Box>
-      <Flex align={"center"} gap={"2"}>
+    <>
+      <Flex>
         <FormLabel>{label}</FormLabel>
         <IconButton
           onClick={add}
           variant={"outline"}
+          type="button"
+          size={"xs"}
           icon={<AddIcon />}
           aria-label={`Add field to ${label}`}
         />
       </Flex>
 
-      <Flex align={"center"} gap={"2"}>
+      <Flex>
         {fields.map((item, i) => {
           return (
             <Flex
@@ -82,10 +94,12 @@ function ArrayField(props: ArrayFieldProps & { name: string }) {
               align={"center"}
               gap={"2"}
             >
-              <Flex>{renderFields([`${name}[${i}]`, itemField])}</Flex>
+              <>{renderFields([`${name}[${i}]`, itemField])}</>
               <IconButton
                 onClick={() => remove(i)}
                 variant={"outline"}
+                type="button"
+                size={"xs"}
                 icon={<MinusIcon />}
                 aria-label={`Remove field from ${label}`}
               />
@@ -93,7 +107,7 @@ function ArrayField(props: ArrayFieldProps & { name: string }) {
           );
         })}
       </Flex>
-    </Box>
+    </>
   );
 }
 
@@ -114,36 +128,45 @@ function renderFields([name, fieldProps]: [string, Field]) {
   return <div>Unknown type</div>;
 }
 
-export function Form({ fields, onSubmit }: FormProps) {
+export function Form({ fields, onSubmit, styling = {} }: FormProps) {
   const form = useForm();
 
-  return (
-    <FormProvider {...form}>
-      <Flex
-        p={"4"}
-        borderRadius={"md"}
-        border={"1px"}
-        borderColor={"lightgray"}
-        direction={"column"}
-        w={"full"}
-        overflow={"auto"}
-        boxShadow="0 0 25px rgba(0, 0, 0, 0.274)"
-      >
-        <Heading size={"md"} mb={"4"}>
-          Form
-        </Heading>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          {Object.entries(fields).map((field, idx) => (
-            <Flex my={"4"} key={idx}>
-              {renderFields(field)}
-            </Flex>
-          ))}
+  const { fieldsPerColumn } = styling;
 
-          <Button type="submit" my={"2"}>
-            Save
-          </Button>
-        </form>
-      </Flex>
-    </FormProvider>
+  return (
+    <Flex p={"2"}>
+      <FormProvider {...form}>
+        <Flex
+          p={"4"}
+          borderRadius={"md"}
+          border={"1px"}
+          borderColor={"lightgray"}
+          direction={"column"}
+          w={"full"}
+          overflow={"auto"}
+          boxShadow="0 0 25px rgba(0, 0, 0, 0.274)"
+        >
+          <Heading size={"md"} mb={"4"}>
+            Form
+          </Heading>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Grid
+              templateColumns={`repeat(${fieldsPerColumn ?? 1}, 1fr)`}
+              gap={6}
+            >
+              {Object.entries(fields).map((field, idx) => (
+                <GridItem w="100%" key={idx}>
+                  {renderFields(field)}
+                </GridItem>
+              ))}
+            </Grid>
+
+            <Button type="submit" my={"2"}>
+              Save
+            </Button>
+          </form>
+        </Flex>
+      </FormProvider>
+    </Flex>
   );
 }

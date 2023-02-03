@@ -26,6 +26,9 @@ export type ObjectFieldProps = FieldSchema &
   DefaultProps & {
     type: "object";
     properties: Fields;
+    styling?: {
+      fieldsPerColumn?: number;
+    };
   };
 
 export type ArrayFieldProps = FieldSchema &
@@ -45,4 +48,7 @@ type Fields = Record<string, Field>;
 export interface FormProps {
   fields: Fields;
   onSubmit: SubmitHandler<FieldValues>;
+  styling?: {
+    fieldsPerColumn?: number;
+  };
 }

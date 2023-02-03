@@ -8,6 +8,10 @@ const fields: FormProps["fields"] = {
     type: "text",
     label: "Name",
   },
+  year: {
+    type: "text",
+    label: "Year",
+  },
   age: {
     type: "number",
     label: "Age",
@@ -18,6 +22,7 @@ const fields: FormProps["fields"] = {
     itemField: {
       type: "text",
       label: "",
+      placeholder: "Hobby",
     },
   },
   address: {
@@ -40,6 +45,17 @@ const fields: FormProps["fields"] = {
         type: "number",
         label: "Zip",
       },
+      country: {
+        type: "text",
+        label: "Country",
+      },
+      continent: {
+        type: "text",
+        label: "Continent",
+      },
+    },
+    styling: {
+      fieldsPerColumn: 3,
     },
   },
 };
@@ -51,9 +67,12 @@ const FormPage = () => {
   return (
     <>
       <Navbar page="Form Component" />
-      <Flex py={"8"} px={"16"}>
-        <Form onSubmit={handleSubmit} fields={fields} />
-      </Flex>
+
+      <Form
+        onSubmit={handleSubmit}
+        fields={fields}
+        styling={{ fieldsPerColumn: 2 }}
+      />
     </>
   );
 };
