@@ -19,7 +19,7 @@ import {
 import { useState, useMemo, useEffect } from "react";
 import useSelectedRows from "./hooks/useSelectedRows";
 import { convertToTitleCase } from "../../utils/textFormatter";
-import { DataTableProps } from "./types/types";
+import { DataTableProps } from "./types/table.types";
 import { fuzzyFilter } from "./utils/utils";
 import Table from "./components/Table";
 import ColumnFilterMenu from "./components/ColumnFilterMenu";

@@ -6,7 +6,7 @@ import { Tooltip } from "@chakra-ui/tooltip";
 import { useState } from "react";
 import { RxCursorArrow } from "react-icons/rx";
 import { convertToTitleCase } from "../../../utils/textFormatter";
-import { CustomSelectedRows } from "../types/types";
+import { CustomSelectedRows } from "../types/table.types";
 
 // Menu for select actions
 export default function SelectActionsMenu<T>({
