@@ -1,7 +1,6 @@
 import { Checkbox } from "@chakra-ui/checkbox";
 import { Flex, Text } from "@chakra-ui/layout";
 import { useQuery } from "@tanstack/react-query";
-import { Spinner } from "@chakra-ui/spinner";
 import { useReactTable } from "@tanstack/react-table";
 import {
   SortingState,
@@ -39,7 +38,7 @@ function DataTable<T>({
     selectActions: [],
   },
 }: DataTableProps<T>) {
-  const { data, isFetching, refetch } = useQuery<T[]>(
+  const { data, isFetching, refetch, isFetched } = useQuery<T[]>(
     [...dataKey],
     fetchFunction,
     {
@@ -194,7 +193,7 @@ function DataTable<T>({
       </Flex>
 
       {/* Table */}
-      <Table table={table} />
+      <Table table={table} isLoading={!isFetched} />
     </Flex>
   );
 }

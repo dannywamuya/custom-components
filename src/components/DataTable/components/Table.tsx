@@ -1,11 +1,44 @@
-import { Flex } from "@chakra-ui/layout";
+import { Flex, Text } from "@chakra-ui/layout";
 import { flexRender } from "@tanstack/react-table";
 import { Table as ITable } from "@tanstack/react-table";
 import "../css/DataTable.css";
 import { FaSortDown, FaSortUp, FaSort } from "react-icons/fa";
+import { Spinner } from "@chakra-ui/react";
 
 // Table
-export default function Table<T>({ table }: { table: ITable<T> }) {
+export default function Table<T>({
+  table,
+  isLoading,
+}: {
+  table: ITable<T>;
+  isLoading: boolean;
+}) {
+  if (isLoading) {
+    return (
+      <Flex
+        borderRadius={"5px"}
+        h={"calc(100vh - 220px)"}
+        bg={"gray.100"}
+        justify={"center"}
+        align={"center"}
+      >
+        <Spinner thickness="3px" emptyColor="gray.200" color="#004f98" />
+      </Flex>
+    );
+  } else if (table.getCoreRowModel().rows.length === 0) {
+    return (
+      <Flex
+        borderRadius={"5px"}
+        h={"calc(100vh - 220px)"}
+        bg={"gray.100"}
+        justify={"center"}
+        align={"center"}
+      >
+        <Text fontWeight={"semibold"}>No Data</Text>
+      </Flex>
+    );
+  }
+
   return (
     <Flex
       overflow={"auto"}
