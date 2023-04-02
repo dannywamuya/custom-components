@@ -157,7 +157,6 @@ function DataTable<T>({
         </Text>
         <Button
           rightIcon={<HiOutlineRefresh />}
-          variant="outline"
           size={"sm"}
           isLoading={isFetching}
           onClick={() => refetch()}
