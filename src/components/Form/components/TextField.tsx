@@ -1,6 +1,6 @@
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
-import { TextFieldProps } from "../types/types";
+import { TextFieldProps } from "../types/form.types";
 
 function TextField(props: TextFieldProps & { name: string }) {
   const { register } = useFormContext();

@@ -24,7 +24,7 @@ import {
   Field,
   FormProps,
   ObjectFieldProps,
-} from "./types/types";
+} from "./types/form.types";
 
 function ObjectField(props: ObjectFieldProps & { name: string }) {
   const { label, name, properties, styling = {} } = props;

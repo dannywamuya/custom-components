@@ -1,6 +1,6 @@
 import { FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { useFormContext } from "react-hook-form";
-import { NumberFieldProps } from "../types/types";
+import { NumberFieldProps } from "../types/form.types";
 
 function NumberField(props: NumberFieldProps & { name: string }) {
   const { register } = useFormContext();

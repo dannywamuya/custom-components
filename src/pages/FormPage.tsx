@@ -1,6 +1,6 @@
 import { Flex } from "@chakra-ui/react";
 import { Form } from "../components/Form";
-import { FormProps } from "../components/Form/types/types";
+import { FormProps } from "../components/Form/types/form.types";
 import Navbar from "./NavBar";
 
 const fields: FormProps["fields"] = {
