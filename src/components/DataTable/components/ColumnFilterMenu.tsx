@@ -41,7 +41,7 @@ export default function ColumnFilterMenu<T>({
       </Menu>
       {filteredColumns.length > 0 ? (
         <IconButton
-          size={"xs"}
+          size={"xxs"}
           borderRadius={"full"}
           p={"1"}
           cursor={"pointer"}
