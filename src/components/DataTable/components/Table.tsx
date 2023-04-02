@@ -1,12 +1,8 @@
-import {
-  TriangleUpIcon,
-  TriangleDownIcon,
-  ArrowUpDownIcon,
-} from "@chakra-ui/icons";
 import { Flex } from "@chakra-ui/layout";
 import { flexRender } from "@tanstack/react-table";
 import { Table as ITable } from "@tanstack/react-table";
 import "../css/DataTable.css";
+import { FaSortDown, FaSortUp, FaSort } from "react-icons/fa";
 
 // Table
 export default function Table<T>({ table }: { table: ITable<T> }) {
@@ -55,11 +51,9 @@ export default function Table<T>({ table }: { table: ITable<T> }) {
                         )}
                     {header.column.getCanSort()
                       ? {
-                          asc: <TriangleUpIcon />,
-                          desc: <TriangleDownIcon />,
-                        }[header.column.getIsSorted() as string] ?? (
-                          <ArrowUpDownIcon />
-                        )
+                          asc: <FaSortUp />,
+                          desc: <FaSortDown />,
+                        }[header.column.getIsSorted() as string] ?? <FaSort />
                       : null}
                   </Flex>
                 </th>
