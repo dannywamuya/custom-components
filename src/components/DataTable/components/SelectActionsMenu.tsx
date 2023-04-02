@@ -34,6 +34,7 @@ export default function SelectActionsMenu<T>({
           as={Button}
           rightIcon={<RxCursorArrow />}
           disabled={selectedRows.length === 0}
+          size={"sm"}
         >
           Select Actions {`(${selectedRows.length})`}
         </MenuButton>

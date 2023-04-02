@@ -35,7 +35,7 @@ export default function DebouncedInput({
   }, [value]);
 
   return (
-    <InputGroup>
+    <InputGroup size={"sm"}>
       <Input
         {...props}
         value={value}

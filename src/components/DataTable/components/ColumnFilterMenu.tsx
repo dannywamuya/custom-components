@@ -20,7 +20,7 @@ export default function ColumnFilterMenu<T>({
   return (
     <Flex gap={"2"} fontSize={"sm"} align={"center"} w="full">
       <Menu closeOnSelect={false}>
-        <MenuButton as={Button} rightIcon={<MdFilterList />}>
+        <MenuButton as={Button} size={"sm"} rightIcon={<MdFilterList />}>
           Filter Columns {`(${filteredColumns.length})`}
         </MenuButton>
         <MenuList>

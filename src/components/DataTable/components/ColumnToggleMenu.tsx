@@ -10,7 +10,7 @@ export default function ColumnToggleMenu<T>({ table }: { table: Table<T> }) {
   return (
     <Flex>
       <Menu closeOnSelect={false}>
-        <MenuButton as={Button} rightIcon={<BiHide />}>
+        <MenuButton as={Button} rightIcon={<BiHide />} size={"sm"}>
           Columns
         </MenuButton>
         <MenuList>
