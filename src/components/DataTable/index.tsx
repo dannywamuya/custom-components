@@ -26,6 +26,8 @@ import ColumnFilterMenu from "./components/ColumnFilterMenu";
 import ColumnToggleMenu from "./components/ColumnToggleMenu";
 import DebouncedInput from "./components/DebouncedInput";
 import SelectActionsMenu from "./components/SelectActionsMenu";
+import { Button } from "@chakra-ui/button";
+import { HiOutlineRefresh } from "react-icons/hi";
 
 function DataTable<T>({
   dataKey,
@@ -37,9 +39,13 @@ function DataTable<T>({
     selectActions: [],
   },
 }: DataTableProps<T>) {
-  const { data, isFetching } = useQuery<T[]>([...dataKey], fetchFunction, {
-    initialData: [],
-  });
+  const { data, isFetching, refetch } = useQuery<T[]>(
+    [...dataKey],
+    fetchFunction,
+    {
+      initialData: [],
+    }
+  );
 
   // Destructure the options passed to the table
   const { canToggleColumns, tableTitle, selectActions } = options;
@@ -145,11 +151,19 @@ function DataTable<T>({
   return (
     <Flex p={"8"} direction={"column"} maxW="full">
       {/* Table Title and Description  */}
-      <Flex w="full" gap="2" align={"center"}>
+      <Flex w="full" gap="2" align={"center"} justify={"space-between"}>
         <Text fontSize={"xl"} fontWeight="bold">
           {tableTitle ? tableTitle : convertToTitleCase([...dataKey])}
         </Text>
-        {isFetching ? <Spinner size={"sm"} /> : null}
+        <Button
+          rightIcon={<HiOutlineRefresh />}
+          variant="outline"
+          size={"sm"}
+          isLoading={isFetching}
+          onClick={() => refetch()}
+        >
+          Refresh
+        </Button>
       </Flex>
 
       {/* Table Controls */}
