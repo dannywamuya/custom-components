@@ -17,6 +17,11 @@ const LandingPage = () => {
             </Link>
           </ListItem>
           <ListItem>
+            <Link to={"/paginated-table"}>
+              <Text _hover={{ color: "blue" }}>Paginated Table Component</Text>
+            </Link>
+          </ListItem>
+          <ListItem>
             <Link to={"/form"}>
               <Text _hover={{ color: "blue" }}>Form Component</Text>
             </Link>
