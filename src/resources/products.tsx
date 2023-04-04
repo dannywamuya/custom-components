@@ -17,7 +17,7 @@ export interface ProductItem {
 // Fetch Products Function
 export const getProducts = async () => {
   const res = await getRequest<ProductItem[]>("/products");
-  return res.data;
+  return { data: res.data, totalPages: 1, totalCount: 20, page: 1 };
 };
 
 // React table helper to create columns

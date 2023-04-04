@@ -1,9 +1,5 @@
 import Navbar from "./NavBar";
-import {
-  getProducts,
-  productColumns,
-  defaultColumns,
-} from "../resources/products";
+import { getProducts, productColumns } from "../resources/products";
 import DataTable from "../components/DataTable";
 
 const TablePage = () => {

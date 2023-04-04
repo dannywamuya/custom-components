@@ -1,18 +1,15 @@
 import Navbar from "./NavBar";
 import DataTable from "../components/DataTable";
-import { getPassengers, passengerColumns } from "../resources/passengers";
+import { companyColumns, getCompanies } from "../resources/companies";
 
 const PaginatedTablePage = () => {
   return (
     <>
       <Navbar page="Paginated Table Component" />
       <DataTable
-        dataKey={["passengers"]}
-        columns={passengerColumns}
-        fetchFunction={async () => {
-          const res = await getPassengers();
-          return res.data;
-        }}
+        dataKey={["companies"]}
+        columns={companyColumns}
+        fetchFunction={getCompanies}
         options={{
           canToggleColumns: true,
           selectActions: [

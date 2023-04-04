@@ -13,9 +13,10 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
+  getPaginationRowModel,
   Column,
 } from "@tanstack/table-core";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import useSelectedRows from "./hooks/useSelectedRows";
 import { convertToTitleCase } from "../../utils/textFormatter";
 import { DataTableProps } from "./types/table.types";
@@ -38,9 +39,20 @@ function DataTable<T>({
     selectActions: [],
   },
 }: DataTableProps<T>) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [size, setSize] = useState(20);
+  const pages = useRef(0);
+
   const { data, isFetching, refetch, isFetched } = useQuery<T[]>(
     [...dataKey],
-    fetchFunction,
+    async () => {
+      const { data, page, totalCount, totalPages } = await fetchFunction(
+        currentPage,
+        size
+      );
+      pages.current = totalPages;
+      return data;
+    },
     {
       initialData: [],
     }
@@ -116,6 +128,7 @@ function DataTable<T>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
     columnResizeMode: "onChange",
   });

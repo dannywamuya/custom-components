@@ -1,6 +1,11 @@
+import { PaginatedResponse } from "../../../global/types";
+
 export interface DataTableProps<T> {
   dataKey: Array<string>;
-  fetchFunction: () => Promise<T[]>;
+  fetchFunction: (
+    page?: number,
+    size?: number
+  ) => Promise<PaginatedResponse<T[]>>;
   columns: any;
   options?: {
     tableTitle?: string;
