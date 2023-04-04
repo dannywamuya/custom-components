@@ -13,8 +13,8 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFacetedMinMaxValues,
-  getPaginationRowModel,
   Column,
+  PaginationState,
 } from "@tanstack/table-core";
 import { useState, useMemo, useEffect, useRef } from "react";
 import useSelectedRows from "./hooks/useSelectedRows";
@@ -39,22 +39,36 @@ function DataTable<T>({
     selectActions: [],
   },
 }: DataTableProps<T>) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [size, setSize] = useState(20);
   const pages = useRef(0);
 
+  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+
+  const fetchDataOptions = {
+    pageIndex,
+    pageSize,
+  };
+
+  const pagination = useMemo(
+    () => ({
+      pageIndex,
+      pageSize,
+    }),
+    [pageIndex, pageSize]
+  );
+
   const { data, isFetching, refetch, isFetched } = useQuery<T[]>(
-    [...dataKey],
+    [...dataKey, fetchDataOptions],
     async () => {
-      const { data, page, totalCount, totalPages } = await fetchFunction(
-        currentPage,
-        size
-      );
+      const { data, totalPages } = await fetchFunction(pageIndex, pageSize);
       pages.current = totalPages;
       return data;
     },
     {
       initialData: [],
+      keepPreviousData: true,
     }
   );
 
@@ -109,15 +123,18 @@ function DataTable<T>({
   const table = useReactTable<T>({
     columns: selectActions ? [rowSelectionColumn, ...columns] : columns,
     data,
+    pageCount: pages.current,
     filterFns: {
       fuzzy: fuzzyFilter,
     },
     state: {
+      pagination,
       sorting,
       rowSelection,
       globalFilter,
       columnFilters,
     },
+    onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
@@ -128,9 +145,9 @@ function DataTable<T>({
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    getPaginationRowModel: getPaginationRowModel(),
     onRowSelectionChange: setRowSelection,
     columnResizeMode: "onChange",
+    manualPagination: true,
   });
 
   const canFilterColumns = useMemo<Column<T>[]>(
@@ -207,6 +224,69 @@ function DataTable<T>({
 
       {/* Table */}
       <Table table={table} isLoading={!isFetched} />
+
+      <Flex justify={"space-between"}>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {"<<"}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {"<"}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {">"}
+        </button>
+        <button
+          className="border rounded p-1"
+          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+          disabled={!table.getCanNextPage()}
+        >
+          {">>"}
+        </button>
+        <span className="flex items-center gap-1">
+          <div>Page</div>
+          <strong>
+            {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </strong>
+        </span>
+        <span className="flex items-center gap-1">
+          | Go to page:
+          <input
+            type="number"
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            onChange={(e) => {
+              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+              table.setPageIndex(page);
+            }}
+            className="border p-1 rounded w-16"
+          />
+        </span>
+        <select
+          value={table.getState().pagination.pageSize}
+          onChange={(e) => {
+            table.setPageSize(Number(e.target.value));
+          }}
+        >
+          {[10, 20, 30, 40, 50].map((pageSize) => (
+            <option key={pageSize} value={pageSize}>
+              Show {pageSize}
+            </option>
+          ))}
+        </select>
+        {isFetching ? "Loading..." : null}
+      </Flex>
     </Flex>
   );
 }
