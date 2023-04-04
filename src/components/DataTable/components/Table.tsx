@@ -17,7 +17,7 @@ export default function Table<T>({
     return (
       <Flex
         borderRadius={"5px"}
-        h={"calc(100vh - 220px)"}
+        h={"100vh"}
         bg={"gray.100"}
         justify={"center"}
         align={"center"}
