@@ -20,7 +20,7 @@ export const getCompanies = async (
   size?: number
 ): Promise<PaginatedResponse<Company[]>> => {
   const res = await getRequest<PaginatedResponse<Company[]>>(
-    `http://localhost:8080/api/companies?page=${page}&size=${size}`
+    `https://pagination-api.onrender.com/api/companies?page=${page}&size=${size}`
   );
   return res.data;
 };
